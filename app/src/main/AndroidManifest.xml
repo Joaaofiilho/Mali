@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Mali">
         <activity
-            android:name=".supermarket_list.views.MainActivity"
+            android:name=".supermarket_list.views.SupermarketListActivity"
             android:exported="true"
             android:theme="@style/Theme.Mali">
             <intent-filter>
