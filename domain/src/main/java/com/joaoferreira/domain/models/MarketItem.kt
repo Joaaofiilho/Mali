@@ -1,6 +1,6 @@
 package com.joaoferreira.domain.models
 
-data class MarketItem(
+open class MarketItem(
     val id: String,
     var title: String,
     var quantity: Int,
