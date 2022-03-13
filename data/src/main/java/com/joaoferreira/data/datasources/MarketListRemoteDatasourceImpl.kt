@@ -11,10 +11,7 @@ import kotlinx.coroutines.flow.flow
 class MarketListRemoteDatasourceImpl(
     private val maliApi: MaliApi
 ) : MarketListRemoteDatasource {
-    override suspend fun create(marketItem: MarketItem): Flow<MarketItem> = flow {
-        maliApi.create(marketItem.toMarketItemModel())
-        emit(marketItem)
-    }
+    override suspend fun create(marketItem: MarketItem) = maliApi.create(marketItem.toMarketItemModel())
 
     override suspend fun getAll(): Flow<List<MarketItem>> = flow {
         val marketItemModels = maliApi.getAll()
@@ -26,19 +23,9 @@ class MarketListRemoteDatasourceImpl(
         emit(marketItemModel.toMarketItem())
     }
 
-    override suspend fun update(marketItem: MarketItem): Flow<MarketItem> = flow {
-        maliApi.update(marketItem.id, marketItem.toMarketItemModel())
-        emit(marketItem)
-    }
+    override suspend fun update(marketItem: MarketItem) = maliApi.update(marketItem.id, marketItem.toMarketItemModel())
 
-    override suspend fun deleteById(id: String): Flow<Unit> = flow {
-        maliApi.deleteById(id)
-        emit(Unit)
-    }
+    override suspend fun deleteById(id: String) = maliApi.deleteById(id)
 
-    override suspend fun deleteAllDone(): Flow<Unit> = flow {
-        maliApi.deleteAllDone()
-        emit(Unit)
-    }
-
+    override suspend fun deleteAllDone() = maliApi.deleteAllDone()
 }
