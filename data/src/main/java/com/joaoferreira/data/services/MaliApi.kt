@@ -5,7 +5,7 @@ import retrofit2.http.*
 
 interface MaliApi {
     @POST("create")
-    suspend fun create(@Body marketItemModel: MarketItemModel)
+    suspend fun create(@Body marketItemModel: MarketItemModel): MarketItemModel
 
     @GET("all")
     suspend fun getAll(): List<MarketItemModel>

@@ -10,11 +10,13 @@ import com.joaoferreira.domain.datasources.MarketListLocalDatasource
 import com.joaoferreira.domain.datasources.MarketListRemoteDatasource
 import com.joaoferreira.domain.repositories.MarketListRepository
 import com.joaoferreira.domain.usecases.*
+import com.joaoferreira.mali.BuildConfig
 import com.joaoferreira.mali.supermarket_list.viewmodels.SupermarketListViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import org.koin.dsl.module
 
 class MaliApplication : Application() {
@@ -58,7 +60,7 @@ class MaliApplication : Application() {
         }
 
         startKoin {
-            androidLogger()
+            androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
             androidContext(this@MaliApplication)
             modules(
                 localDatasourcesModule,

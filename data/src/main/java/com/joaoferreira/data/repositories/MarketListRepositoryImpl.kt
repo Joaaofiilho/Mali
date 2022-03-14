@@ -4,44 +4,53 @@ import com.joaoferreira.domain.datasources.MarketListLocalDatasource
 import com.joaoferreira.domain.datasources.MarketListRemoteDatasource
 import com.joaoferreira.domain.models.MarketItem
 import com.joaoferreira.domain.repositories.MarketListRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.launch
 
 class MarketListRepositoryImpl(
     private val localDatasource: MarketListLocalDatasource,
     private val remoteDatasource: MarketListRemoteDatasource,
 ): MarketListRepository {
-    override suspend fun create(marketItem: MarketItem): Flow<MarketItem> = flow {
-        localDatasource.create(marketItem)
-        try {
-            remoteDatasource.create(marketItem)
-            emit(marketItem)
-        } catch (e: Throwable) {
-            localDatasource.deleteById(marketItem.id)
-            throw e
-        }
+    override suspend fun create(marketItem: MarketItem): MarketItem {
+        val createdMarketItem = remoteDatasource.create(marketItem)
+        localDatasource.create(createdMarketItem)
+        return createdMarketItem
     }
 
-    override suspend fun getAll(): Flow<List<MarketItem>> = flow {
-        localDatasource.getAll()
-            .collect {
+    override fun getAll(): Flow<List<MarketItem>> = flow {
+        coroutineScope {
+            launch {
+                val marketItems = remoteDatasource.getAll()
+                localDatasource.createAll(marketItems)
+            }
+
+            localDatasource.getAll()
+                .collect {
+                    emit(it)
+                }
+        }
+    }.flowOn(Dispatchers.IO)
+
+    override fun getById(id: String): Flow<MarketItem> = flow {
+        coroutineScope {
+            launch {
+                val marketItem = remoteDatasource.getById(id)
+                localDatasource.create(marketItem)
+            }
+
+            localDatasource.getById(id).collect {
                 emit(it)
             }
-        val marketItems = remoteDatasource.getAll().single()
-        localDatasource.createAll(marketItems)
-    }
-
-    override suspend fun getById(id: String): Flow<MarketItem> = flow {
-        localDatasource.getById(id).collect {
-            emit(it)
         }
+    }.flowOn(Dispatchers.IO)
 
-        val marketItem = remoteDatasource.getById(id).single()
-        localDatasource.create(marketItem)
-    }
-
-    override suspend fun update(marketItem: MarketItem): Flow<MarketItem> = flow {
+    override fun update(marketItem: MarketItem): Flow<MarketItem> = flow {
         val oldMarketItem = localDatasource.getById(marketItem.id).single()
 
         localDatasource.update(marketItem)
@@ -52,9 +61,9 @@ class MarketListRepositoryImpl(
             localDatasource.update(oldMarketItem)
             throw e
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
-    override suspend fun deleteById(id: String): Flow<MarketItem> = flow {
+    override fun deleteById(id: String): Flow<MarketItem> = flow {
         val marketItem = localDatasource.getById(id).single()
 
         localDatasource.deleteById(id)
@@ -65,9 +74,9 @@ class MarketListRepositoryImpl(
             localDatasource.create(marketItem)
             throw e
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
-    override suspend fun deleteAllDone(): Flow<List<MarketItem>> = flow {
+    override fun deleteAllDone(): Flow<List<MarketItem>> = flow {
         val doneMarketItems = localDatasource.getAllDone().single()
 
         localDatasource.deleteAllDone()
@@ -78,5 +87,5 @@ class MarketListRepositoryImpl(
             localDatasource.createAll(doneMarketItems)
             throw e
         }
-    }
+    }.flowOn(Dispatchers.IO)
 }

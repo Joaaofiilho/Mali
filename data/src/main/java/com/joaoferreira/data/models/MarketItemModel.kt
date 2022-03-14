@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "market_items")
 data class MarketItemModel(
+    @SerializedName("_id")
     @PrimaryKey
     val id: String,
     var title: String,

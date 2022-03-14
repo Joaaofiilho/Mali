@@ -20,7 +20,6 @@ abstract class MaliDatabase: RoomDatabase() {
                     context,
                     MaliDatabase::class.java,
                     "mali_database")
-                    .createFromAsset("database/mali_database.db")
                     .build()
 
                 INSTANCE = instance

@@ -1,30 +1,29 @@
 package com.joaoferreira.data.database
 
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
+import com.joaoferreira.data.models.MarketItemModel
 import com.joaoferreira.domain.models.MarketItem
 import kotlinx.coroutines.flow.Flow
 
+@Dao
 interface MarketItemsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(marketItem: MarketItem)
+    suspend fun insert(marketItem: MarketItemModel)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(marketItems: List<MarketItem>)
+    suspend fun insertAll(marketItems: List<MarketItemModel>)
 
     @Query("SELECT * FROM market_items")
-    suspend fun getAll(): Flow<List<MarketItem>>
+    fun getAll(): Flow<List<MarketItemModel>>
 
     @Query("SELECT * FROM market_items WHERE is_done=1")
-    suspend fun getAllDone(): Flow<List<MarketItem>>
+    fun getAllDone(): Flow<List<MarketItemModel>>
 
     @Query("SELECT * FROM market_items WHERE id=:id")
-    suspend fun getById(id: String): Flow<MarketItem>
+    fun getById(id: String): Flow<MarketItemModel>
 
     @Update
-    suspend fun update(marketItem: MarketItem)
+    suspend fun update(marketItem: MarketItemModel)
 
     @Query("DELETE FROM market_items WHERE id=:id")
     suspend fun deleteById(id: String)

@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 class GetByIdMarketItemUseCase(
     private val repository: MarketListRepository,
-): UseCase<GetByIdMarketItemUseCase.Params, MarketItem>() {
-    override suspend fun invoke(params: Params): Flow<MarketItem> = repository.getById(params.id)
+): UseCase<GetByIdMarketItemUseCase.Params, Flow<MarketItem>>() {
+    override fun invoke(params: Params): Flow<MarketItem> = repository.getById(params.id)
 
     data class Params(
         val id: String,

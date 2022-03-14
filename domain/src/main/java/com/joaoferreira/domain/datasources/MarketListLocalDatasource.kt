@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.Flow
 interface MarketListLocalDatasource {
     suspend fun create(marketItem: MarketItem)
     suspend fun createAll(marketItems: List<MarketItem>)
-    suspend fun getAll(): Flow<List<MarketItem>>
-    suspend fun getAllDone(): Flow<List<MarketItem>>
-    suspend fun getById(id: String): Flow<MarketItem>
+    fun getAll(): Flow<List<MarketItem>>
+    fun getAllDone(): Flow<List<MarketItem>>
+    fun getById(id: String): Flow<MarketItem>
     suspend fun update(marketItem: MarketItem)
     suspend fun deleteById(id: String)
     suspend fun deleteAllDone()
