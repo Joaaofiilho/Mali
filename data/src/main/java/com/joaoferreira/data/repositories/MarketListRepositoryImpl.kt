@@ -7,10 +7,7 @@ import com.joaoferreira.domain.repositories.MarketListRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class MarketListRepositoryImpl(
@@ -51,9 +48,9 @@ class MarketListRepositoryImpl(
     }.flowOn(Dispatchers.IO)
 
     override fun update(marketItem: MarketItem): Flow<MarketItem> = flow {
-        val oldMarketItem = localDatasource.getById(marketItem.id).single()
-
+        val oldMarketItem = localDatasource.getById(marketItem.id).first()
         localDatasource.update(marketItem)
+
         try {
             remoteDatasource.update(marketItem)
             emit(marketItem)
@@ -64,7 +61,7 @@ class MarketListRepositoryImpl(
     }.flowOn(Dispatchers.IO)
 
     override fun deleteById(id: String): Flow<MarketItem> = flow {
-        val marketItem = localDatasource.getById(id).single()
+        val marketItem = localDatasource.getById(id).first()
 
         localDatasource.deleteById(id)
         try {
@@ -77,7 +74,7 @@ class MarketListRepositoryImpl(
     }.flowOn(Dispatchers.IO)
 
     override fun deleteAllDone(): Flow<List<MarketItem>> = flow {
-        val doneMarketItems = localDatasource.getAllDone().single()
+        val doneMarketItems = localDatasource.getAllDone().first()
 
         localDatasource.deleteAllDone()
         try {
