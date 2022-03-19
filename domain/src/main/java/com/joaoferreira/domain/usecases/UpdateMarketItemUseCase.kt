@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.Flow
 
 class UpdateMarketItemUseCase(
     private val repository: MarketListRepository,
-): UseCase<UpdateMarketItemUseCase.Params, Flow<MarketItem>>() {
+): SuspendUseCase<UpdateMarketItemUseCase.Params, Result<MarketItem>>() {
 
-    override fun invoke(params: Params): Flow<MarketItem> = repository.update(params.marketItem)
+    override suspend fun invoke(params: Params): Result<MarketItem> = repository.update(params.marketItem)
 
     data class Params(
         val marketItem: MarketItem,

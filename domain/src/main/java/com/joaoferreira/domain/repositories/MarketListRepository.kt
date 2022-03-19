@@ -4,10 +4,10 @@ import com.joaoferreira.domain.models.MarketItem
 import kotlinx.coroutines.flow.Flow
 
 interface MarketListRepository {
-    suspend fun create(marketItem: MarketItem): MarketItem
-    fun getAll(): Flow<List<MarketItem>>
-    fun getById(id: String): Flow<MarketItem>
-    fun update(marketItem: MarketItem): Flow<MarketItem>
-    fun deleteById(id: String): Flow<MarketItem>
-    fun deleteAllDone(): Flow<List<MarketItem>>
+    suspend fun create(marketItem: MarketItem): Result<MarketItem>
+    fun getAll(): Flow<Result<List<MarketItem>>>
+    fun getById(id: String): Flow<Result<MarketItem>>
+    suspend fun update(marketItem: MarketItem): Result<MarketItem>
+    suspend fun deleteById(id: String): Result<MarketItem>
+    suspend fun deleteAllDone(): Result<List<MarketItem>>
 }

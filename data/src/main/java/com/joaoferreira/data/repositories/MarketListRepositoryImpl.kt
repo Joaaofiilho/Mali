@@ -1,88 +1,120 @@
 package com.joaoferreira.data.repositories
 
+import com.joaoferreira.data.utils.requestThrowableToFailure
 import com.joaoferreira.domain.datasources.MarketListLocalDatasource
 import com.joaoferreira.domain.datasources.MarketListRemoteDatasource
 import com.joaoferreira.domain.models.MarketItem
 import com.joaoferreira.domain.repositories.MarketListRepository
+import com.joaoferreira.domain.utils.LocalDatasourceFailure
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 class MarketListRepositoryImpl(
     private val localDatasource: MarketListLocalDatasource,
     private val remoteDatasource: MarketListRemoteDatasource,
-): MarketListRepository {
-    override suspend fun create(marketItem: MarketItem): MarketItem {
-        val createdMarketItem = remoteDatasource.create(marketItem)
-        localDatasource.create(createdMarketItem)
-        return createdMarketItem
+) : MarketListRepository {
+    override suspend fun create(marketItem: MarketItem): Result<MarketItem> {
+        return try {
+            val createdMarketItem = remoteDatasource.create(marketItem)
+            try {
+                localDatasource.create(createdMarketItem)
+                Result.success(marketItem)
+            } catch (e: Throwable) {
+                Result.failure(LocalDatasourceFailure())
+            }
+        } catch (e: Throwable) {
+            Result.failure(requestThrowableToFailure(e))
+        }
     }
 
-    override fun getAll(): Flow<List<MarketItem>> = flow {
-        coroutineScope {
-            launch {
-                val marketItems = remoteDatasource.getAll()
+    override fun getAll(): Flow<Result<List<MarketItem>>> = flow<Result<List<MarketItem>>> {
+        try {
+            val marketItems = remoteDatasource.getAll()
+            try {
                 localDatasource.createAll(marketItems)
+            } catch (e: Throwable) {
+                emit(Result.failure(LocalDatasourceFailure()))
             }
 
             localDatasource.getAll()
-                .collect {
-                    emit(it)
+                .catch {
+                    emit(Result.failure(LocalDatasourceFailure()))
                 }
+                .collect {
+                    emit(Result.success(it))
+                }
+        } catch (e: Throwable) {
+            emit(Result.failure(requestThrowableToFailure(e)))
         }
     }.flowOn(Dispatchers.IO)
 
-    override fun getById(id: String): Flow<MarketItem> = flow {
-        coroutineScope {
-            launch {
+    override fun getById(id: String): Flow<Result<MarketItem>> = flow<Result<MarketItem>> {
+            try {
                 val marketItem = remoteDatasource.getById(id)
-                localDatasource.create(marketItem)
+                try {
+                    localDatasource.create(marketItem)
+                } catch (e: Throwable) {
+                    emit(Result.failure(LocalDatasourceFailure()))
+                }
+            } catch (e: Throwable) {
+                emit(Result.failure(requestThrowableToFailure(e)))
             }
 
-            localDatasource.getById(id).collect {
-                emit(it)
-            }
-        }
+            localDatasource.getById(id)
+                .catch {
+                    emit(Result.failure(LocalDatasourceFailure()))
+                }
+                .collect {
+                    emit(Result.success(it))
+                }
     }.flowOn(Dispatchers.IO)
 
-    override fun update(marketItem: MarketItem): Flow<MarketItem> = flow {
-        val oldMarketItem = localDatasource.getById(marketItem.id).first()
-        localDatasource.update(marketItem)
-
-        try {
+    override suspend fun update(marketItem: MarketItem): Result<MarketItem> {
+        return try {
             remoteDatasource.update(marketItem)
-            emit(marketItem)
+            try {
+                localDatasource.update(marketItem)
+                Result.success(marketItem)
+            } catch (e: Throwable) {
+                Result.failure(LocalDatasourceFailure())
+            }
         } catch (e: Throwable) {
-            localDatasource.update(oldMarketItem)
-            throw e
+            Result.failure(requestThrowableToFailure(e))
         }
-    }.flowOn(Dispatchers.IO)
+    }
 
-    override fun deleteById(id: String): Flow<MarketItem> = flow {
-        val marketItem = localDatasource.getById(id).first()
-
-        localDatasource.deleteById(id)
-        try {
-            remoteDatasource.deleteById(id)
-            emit(marketItem)
-        } catch(e: Throwable) {
-            localDatasource.create(marketItem)
-            throw e
+    override suspend fun deleteById(id: String): Result<MarketItem> {
+        return try {
+            try {
+                remoteDatasource.deleteById(id)
+                try {
+                    val marketItem = localDatasource.getById(id).first()
+                    localDatasource.deleteById(id)
+                    Result.success(marketItem)
+                } catch (e: Throwable) {
+                    Result.failure(LocalDatasourceFailure())
+                }
+            } catch (e: Throwable) {
+                Result.failure(requestThrowableToFailure(e))
+            }
+        } catch (e: Throwable) {
+            Result.failure(LocalDatasourceFailure())
         }
-    }.flowOn(Dispatchers.IO)
+    }
 
-    override fun deleteAllDone(): Flow<List<MarketItem>> = flow {
-        val doneMarketItems = localDatasource.getAllDone().first()
-
-        localDatasource.deleteAllDone()
-        try {
+    override suspend fun deleteAllDone(): Result<List<MarketItem>> {
+        return try {
             remoteDatasource.deleteAllDone()
-            emit(doneMarketItems)
+
+            try {
+                val doneMarketItems = localDatasource.getAllDone().first()
+                localDatasource.deleteAllDone()
+                Result.success(doneMarketItems)
+            } catch (e: Throwable) {
+                Result.failure(LocalDatasourceFailure())
+            }
         } catch (e: Throwable) {
-            localDatasource.createAll(doneMarketItems)
-            throw e
+            Result.failure(requestThrowableToFailure(e))
         }
-    }.flowOn(Dispatchers.IO)
+    }
 }

@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.Flow
 
 class DeleteByIdMarketItemUseCase(
     private val repository: MarketListRepository,
-): UseCase<DeleteByIdMarketItemUseCase.Params, Flow<MarketItem>>() {
+): SuspendUseCase<DeleteByIdMarketItemUseCase.Params, Result<MarketItem>>() {
 
-    override fun invoke(params: Params): Flow<MarketItem> = repository.deleteById(params.id)
+    override suspend fun invoke(params: Params): Result<MarketItem> = repository.deleteById(params.id)
 
     data class Params(
         val id: String,
