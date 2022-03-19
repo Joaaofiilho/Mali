@@ -33,7 +33,7 @@ private val LightColorPalette = lightColors(
 )
 
 @Composable
-fun MaliTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+fun MaliTheme(darkTheme: Boolean = false, content: @Composable () -> Unit) {
     val colors = if (darkTheme) {
         DarkColorPalette
     } else {
