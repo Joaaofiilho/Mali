@@ -14,6 +14,7 @@
         android:theme="@style/Theme.Mali">
         <activity
             android:name=".supermarket_list.views.SupermarketListActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true"
             android:theme="@style/Theme.Mali">
             <intent-filter>

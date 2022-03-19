@@ -1,3 +1,35 @@
 <resources>
     <string name="app_name">Mali</string>
+
+    <!--Supermarket List Screen-->
+    <string name="title">Title</string>
+    <string name="category">Category</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="try_again">Try again</string>
+    <string name="empty_items">There are still no Market Items. Please, click on the plus symbol below to start adding items to your shopping list.</string>
+
+    <!-- Categories -->
+    <string name="category_food">Food</string>
+    <string name="category_beauty">Beauty</string>
+    <string name="category_drinks">Drinks</string>
+    <string name="category_cleaning">Cleaning</string>
+    <string name="category_utensils">Utensils</string>
+    <string name="category_toys">Toys</string>
+    <string name="category_technology">Technology</string>
+    <string name="category_others">Others</string>
+    <string name="category_none">No category</string>
+
+    <!-- Feedbacks -->
+    <string name="item_updated_successfully">%1$s updated successfully.</string>
+    <string name="item_deleted_successfully">%1$s deleted successfully.</string>
+
+    <!-- Errors -->
+    <string name="something_went_wrong">Something went wrong. Please, try again later.</string>
+    <string name="title_missing_error">The title must not be empty.</string>
+    <string name="fetch_items_error">Failed to fetch items from the server.</string>
+    <string name="item_updated_error">Error updating item %1$s. If the error persists, please restart the application.</string>
+    <string name="item_updated_remote_error">Error updating item %1$s. Please, check your internet connection and try again.</string>
+    <string name="item_deleted_error">Error deleting item %1$s. If the error persists, please restart the application.</string>
+    <string name="item_deleted_remote_error">Error deleting item %1$s. Please, check your internet connection and try again.</string>
 </resources>
